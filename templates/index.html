@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DevOps Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .pod-id { font-family: monospace; color: #0d6efd; font-weight: bold; }
+        .log-container { height: 300px; overflow-y: auto; background: #212529; color: #00ff00; padding: 15px; border-radius: 5px; }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">🚀 DevOps Master Dashboard</a>
+            <div class="d-flex">
+                <span class="navbar-text me-3">Status: <span class="badge bg-success">Active</span></span>
+                <span class="navbar-text">Pod: <span class="pod-id">{{ hostname }}</span></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <!-- Action Controls -->
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">System Controls</div>
+                    <div class="card-body text-center">
+                        <p class="text-muted small">Test your Kubernetes Self-Healing here:</p>
+                        <button onclick="location.reload()" class="btn btn-outline-secondary w-100 mb-2">Refresh Page</button>
+                        <a href="/crash" class="btn btn-danger w-100">🔥 Simulate App Crash</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Log Monitor -->
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between">
+                        <span>Live Pipeline Logs</span>
+                        <small>Last check: <span id="last-update"></span></small>
+                    </div>
+                    <div class="card-body">
+                        <div id="log-window" class="log-container small">
+                            Loading logs...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function fetchLogs() {
+            fetch('/api/logs')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('log-window');
+                    document.getElementById('last-update').innerText = new Date().toLocaleTimeString();
+                    container.innerHTML = data.map(l => `<div>[${l.time}] [POD: ${l.host}] ${l.msg}</div>`).join('');
+                });
+        }
+        setInterval(fetchLogs, 2000); // Refresh logs every 2 seconds
+        fetchLogs();
+    </script>
+</body>
+</html>
