@@ -15,7 +15,7 @@ def add_log(message):
 @app.route('/')
 def home():
     add_log("Home page accessed")
-    return "Application Running 3 is running ✅"
+    return "Application Running 4 is running ✅"
 
 # Health check (VERY IMPORTANT)
 @app.route('/health')
