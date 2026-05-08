@@ -93,5 +93,10 @@ def crash():
     threading.Timer(1.0, lambda: os._exit(1)).start()
     return "<h1>Pod Crashing...</h1><p>Kubernetes will restart this soon.</p>"
 
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=5000)
+
 if __name__ == '__main__':
+    # Add an initial log so the box isn't empty on startup
+    add_log("System initiaized on port 5000")
     app.run(host='0.0.0.0', port=5000)

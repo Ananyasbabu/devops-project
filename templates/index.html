@@ -96,6 +96,20 @@
             });
     }
     setInterval(updateStats, 1000);
+    function updateDashboard() {
+    fetch('/api/stats')
+        .then(response => response.json())
+        .then(data => {
+            // Update the Logs box
+            const logBox = document.getElementById('log-content'); // Make sure your div has this ID
+            logBox.innerHTML = data.logs.map(log => 
+                `<div>[${log.time}] ${log.msg} (Pod: ${log.host})</div>`
+            ).join('');
+        });
+}
+
+// Update every 2 seconds
+setInterval(updateDashboard, 2000);
 </script>
 
 </body>
