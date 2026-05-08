@@ -28,13 +28,11 @@ docker run -d -p 5000:5000 --name devops-container devops-app:v1
 
 # # 3. Force a refresh so it uses the newest build
 # kubectl rollout restart deployment/flask-app
-
-#!/bin/bash
-# 1. Build the new version of the image
+# 1. Build the image
 docker build -t devops-app:v1 .
 
-# 2. Re-apply the Kubernetes config
+# 2. Apply the YAML
 kubectl apply -f deployment.yaml
 
-# 3. FORCE KUBERNETES TO RESTART THE PODS (This is the secret!)
-kubectl rollout restart deployment/flask-app
+# 3. The most important line for updates:
+kubectl rollout restart deployment flask-app

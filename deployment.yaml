@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: flask-container
-        image: devops-app:v1
+        image: devops-app:v5
         imagePullPolicy: Never # Critical if using local images in Minikube/Docker Desktop
         ports:
         - containerPort: 5000

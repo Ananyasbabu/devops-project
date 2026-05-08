@@ -2,68 +2,101 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>DevOps Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Control Center</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .pod-id { font-family: monospace; color: #0d6efd; font-weight: bold; }
-        .log-container { height: 300px; overflow-y: auto; background: #212529; color: #00ff00; padding: 15px; border-radius: 5px; }
+        .metric-card { transition: transform 0.2s; }
+        .metric-card:hover { transform: scale(1.02); }
+        .log-terminal { background: #1e1e1e; color: #00ff00; height: 250px; overflow-y: auto; font-family: 'Courier New', monospace; padding: 10px; border-left: 5px solid #0d6efd; }
     </style>
 </head>
 <body class="bg-light">
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-dark bg-dark mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="#">🚀 DevOps Master Dashboard</a>
-            <div class="d-flex">
-                <span class="navbar-text me-3">Status: <span class="badge bg-success">Active</span></span>
-                <span class="navbar-text">Pod: <span class="pod-id">{{ hostname }}</span></span>
-            </div>
-        </div>
-    </nav>
 
+<nav class="navbar navbar-dark bg-primary shadow">
     <div class="container">
-        <div class="row">
-            <!-- Action Controls -->
-            <div class="col-md-4">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white">System Controls</div>
-                    <div class="card-body text-center">
-                        <p class="text-muted small">Test your Kubernetes Self-Healing here:</p>
-                        <button onclick="location.reload()" class="btn btn-outline-secondary w-100 mb-2">Refresh Page</button>
-                        <a href="/crash" class="btn btn-danger w-100">🔥 Simulate App Crash</a>
-                    </div>
+        <span class="navbar-brand mb-0 h1">🛠️ DevOps Pipeline Monitoring</span>
+        <span class="badge bg-light text-dark">Environment: Kubernetes Cluster</span>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row text-center mb-4">
+        <!-- Metric 1: Uptime -->
+        <div class="col-md-4">
+            <div class="card metric-card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-muted">Pod Uptime</h6>
+                    <h2 id="uptime-display" class="text-primary">0s</h2>
                 </div>
             </div>
-
-            <!-- Log Monitor -->
-            <div class="col-md-8">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-dark text-white d-flex justify-content-between">
-                        <span>Live Pipeline Logs</span>
-                        <small>Last check: <span id="last-update"></span></small>
-                    </div>
-                    <div class="card-body">
-                        <div id="log-window" class="log-container small">
-                            Loading logs...
-                        </div>
-                    </div>
+        </div>
+        <!-- Metric 2: Request Counter -->
+        <div class="col-md-4">
+            <div class="card metric-card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Requests Served</h6>
+                    <h2 id="request-display" class="text-success">0</h2>
+                </div>
+            </div>
+        </div>
+        <!-- Metric 3: Active Pod -->
+        <div class="col-md-4">
+            <div class="card metric-card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-muted">Active Pod ID</h6>
+                    <small id="pod-display" class="fw-bold text-secondary">Loading...</small>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        function fetchLogs() {
-            fetch('/api/logs')
-                .then(response => response.json())
-                .then(data => {
-                    const container = document.getElementById('log-window');
-                    document.getElementById('last-update').innerText = new Date().toLocaleTimeString();
-                    container.innerHTML = data.map(l => `<div>[${l.time}] [POD: ${l.host}] ${l.msg}</div>`).join('');
-                });
-        }
-        setInterval(fetchLogs, 2000); // Refresh logs every 2 seconds
-        fetchLogs();
-    </script>
+    <div class="row">
+        <!-- Control Panel -->
+        <div class="col-md-5">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-dark text-white">Fault Injection (Demo)</div>
+                <div class="card-body">
+                    <p class="small text-muted">Use these to demonstrate <b>Self-Healing</b> and <b>Zero-Downtime</b> deployments.</p>
+                    <button onclick="location.reload()" class="btn btn-primary w-100 mb-3">🔄 Refresh & Balance Traffic</button>
+                    <a href="/crash" class="btn btn-danger w-100">💥 Kill Current Pod</a>
+                </div>
+            </div>
+            
+            <div class="alert alert-info small shadow-sm">
+                <b>DevOps Tip:</b> Refresh the page multiple times. You will see the Pod ID change, proving the <b>Kubernetes Service</b> is load-balancing your traffic!
+            </div>
+        </div>
+
+        <!-- Live Logs -->
+        <div class="col-md-7">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">Live System Logs</div>
+                <div class="card-body">
+                    <div id="log-window" class="log-terminal small"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateStats() {
+        fetch('/api/stats')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('uptime-display').innerText = data.uptime;
+                document.getElementById('request-display').innerText = data.requests;
+                document.getElementById('pod-display').innerText = data.pod;
+                
+                const logWindow = document.getElementById('log-window');
+                logWindow.innerHTML = data.logs.map(l => 
+                    `<div><span class="text-info">[${l.time}]</span> <span class="text-warning">[${l.host}]</span> ${l.msg}</div>`
+                ).join('');
+            });
+    }
+    setInterval(updateStats, 1000);
+</script>
+
 </body>
 </html>
