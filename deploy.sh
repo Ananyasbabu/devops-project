@@ -7,16 +7,18 @@ if command -v sudo >/dev/null 2>&1; then
 else
     chmod 666 /var/run/docker.sock || true
 fi
+#!/bin/bash
 
-# Stop and remove existing container
-docker stop devops-container || true
-docker rm devops-container || true
 
-# Build the new image from your Dockerfile
-docker build -t devops-app:v1 .
+# # Stop and remove existing container
+# docker stop devops-container || true
+# docker rm devops-container || true
 
-# Run the new container
-docker run -d -p 5000:5000 --name devops-container devops-app:v1
+# # Build the new image from your Dockerfile
+# docker build -t devops-app:v1 .
+
+# # Run the new container
+# docker run -d -p 5000:5000 --name devops-container devops-app:v1
 
 #!/bin/bash
 
@@ -28,11 +30,23 @@ docker run -d -p 5000:5000 --name devops-container devops-app:v1
 
 # # 3. Force a refresh so it uses the newest build
 # kubectl rollout restart deployment/flask-app
-# 1. Build the image
-docker build -t devops-app:v1 .
+# # 1. Build the image
+# docker build -t devops-app:v1 .
 
-# 2. Apply the YAML
+# # 2. Apply the YAML
+# kubectl apply -f deployment.yaml
+
+# # 3. The most important line for updates:
+# kubectl rollout restart deployment flask-app
+
+# 1. Build the specific v5 image
+docker build -t devops-app:v5 .
+
+# 2. Deploy to Kubernetes
 kubectl apply -f deployment.yaml
 
-# 3. The most important line for updates:
+# 3. Force the rollout so the new code goes live immediately
 kubectl rollout restart deployment flask-app
+
+# 4. Verify the status
+kubectl rollout status deployment flask-app
